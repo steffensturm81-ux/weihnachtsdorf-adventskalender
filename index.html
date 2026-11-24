@@ -1,5 +1,424 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#14253b"><title>Unser Weihnachtsdorf 🎄</title><style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#14253b;color:white;font-family:Georgia,serif}main{position:relative;width:100vw;height:100vh;height:100dvh;overflow:hidden;background:#14253b url('winterdorf.jpg') center center/cover no-repeat}main:before{content:"";position:absolute;inset:0;background:linear-gradient(#071b33a6,transparent 30%,transparent 70%,#071b3377);pointer-events:none}header{position:absolute;top:2%;left:8%;right:8%;text-align:center;text-shadow:0 2px 10px #071729;pointer-events:none}h1{font-weight:normal;font-size:clamp(24px,4vw,47px);margin:0;letter-spacing:.04em}header p{font-size:clamp(12px,1.7vw,19px);margin:5px}#doors{position:absolute;inset:0;pointer-events:none}.door{position:absolute;width:5.5%;min-width:25px;aspect-ratio:1;border:1px solid #e8c37e;border-radius:6px;background:linear-gradient(140deg,#7d4129e8,#40242be8);box-shadow:0 0 0 2px #382421bb,0 2px 14px #071625,inset 0 0 10px #c89a4b;color:#fff0c8;font:clamp(13px,2vw,23px) Georgia,serif;text-shadow:0 1px 3px black;pointer-events:auto;cursor:pointer}.door:active{transform:scale(1.1)}.door.opened{background:linear-gradient(135deg,#c79b4d,#77522c)}#snow{position:absolute;inset:0;overflow:hidden;pointer-events:none}.flake{position:absolute;top:-8%;color:#fff;opacity:.75;animation:fall linear infinite;will-change:transform}@keyframes fall{to{transform:translate3d(35px,115vh,0)}}#clock{position:absolute;bottom:2%;right:2%;padding:7px 12px;background:#0b2138c7;border-radius:9px;font:13px Arial,sans-serif}#hint{position:absolute;bottom:2%;left:2%;font:12px Arial,sans-serif;text-shadow:0 1px 5px black}#preview{position:absolute;top:2%;right:2%;border:1px solid #d6bc8b;border-radius:12px;background:#172b40d9;color:white;padding:8px 10px;font:12px Arial,sans-serif;cursor:pointer}#preview.active{background:#925b2e}#modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#061522d9;z-index:5;padding:15px}#modal.show{display:flex}.panel{width:min(500px,94vw);max-height:86vh;overflow:auto;background:linear-gradient(145deg,#fff4db,#dfc699);color:#4b3025;border:5px double #ad813d;border-radius:20px;box-shadow:0 15px 50px #000a;text-align:center;padding:24px}.panel h2{font-size:27px;margin:0 0 12px}.panel p{font-size:19px;line-height:1.5}.panel button{border:0;border-radius:20px;background:#713c2f;color:white;padding:11px 25px;font-size:16px}@media(prefers-reduced-motion:reduce){.flake{animation:none}}@media(orientation:portrait){h1{font-size:23px}.door{min-width:24px}}
-</style></head><body><main><div id="snow"></div><header><h1>Unser Weihnachtsdorf</h1><p>24 kleine Momente voller Weihnachtszauber ✨</p></header><div id="doors"></div><button id="preview" aria-pressed="false">Vorschau: Aus</button><div id="hint">🎄 Tippe auf ein Türchen</div><div id="clock"></div><div id="modal" role="dialog" aria-modal="true"><div class="panel"><h2 id="mt"></h2><p id="msg"></p><button id="close">Schließen ✨</button></div></div></main><script>
-(function(){'use strict';var surprises=['Heute beginnt unser Weihnachtszauber! Gib jemandem eine riesige Umarmung. ❤️','Finde heute drei Dinge, die dich glücklich machen. 🌟','Sing dein Lieblingsweihnachtslied! 🎵','Bastle einen kleinen Stern aus Papier. ⭐','Sag jemandem, warum du ihn lieb hast. 💌','Nikolaus! Schau nach, ob eine kleine Überraschung auf dich wartet. 🎅','Trinke heute einen leckeren Kakao. ☕','Baue einen Schneemann aus Schnee, Watte oder Papier. ⛄','Was wünschst du dir für andere? 💫','Suche das schönste Weihnachtslicht in eurer Umgebung. 🕯️','Male ein Rentier mit einer roten Nase. 🦌','Macht ein lustiges Familienfoto. 📷','Lest gemeinsam eine Weihnachtsgeschichte. 📖','Verstecke einen lieben Zettel für jemanden. 💕','Tanze zu einem Weihnachtslied. 💃','Welche fünf Dinge glitzern heute? ✨','Verziert gemeinsam ein Plätzchen. 🍪','Kuschelt euch zusammen und schaut einen Weihnachtsfilm. 🎬','Bastle ein winziges Geschenk aus Papier. 🎁','Erfinde einen Namen für ein Weihnachtsrentier. 🦌','Geheime Mission: Bring jemanden zum Lachen! 😄','Bewundert zusammen die Weihnachtsdekoration. 🎄','Bereite dem Weihnachtsmann einen lieben Gruß vor. 💌','Frohe Weihnachten! Das größte Geschenk ist die Zeit miteinander. ❤️'];var pos=[[8,29],[20,34],[32,29],[44,35],[56,30],[68,34],[82,28],[11,46],[23,49],[35,45],[47,50],[59,45],[71,49],[86,46],[8,63],[20,68],[32,62],[44,68],[56,62],[68,68],[80,62],[89,73],[34,83],[63,82]];var doors=document.getElementById('doors'),modal=document.getElementById('modal'),preview=false;function stored(n){try{return localStorage.getItem('weihnachtsdorf2026-'+n)==='1'}catch(e){return false}}function save(n){try{localStorage.setItem('weihnachtsdorf2026-'+n,'1')}catch(e){}}function available(n){var d=new Date();return preview||(d.getFullYear()===2026&&d.getMonth()===11&&d.getDate()>=n)||(d.getFullYear()>2026)}function show(n){document.getElementById('mt').textContent='Türchen '+n+' 🎁';if(available(n)){document.getElementById('msg').textContent=surprises[n-1];save(n);render()}else{document.getElementById('msg').textContent='Dieses Türchen öffnet sich am '+n+'. Dezember. Noch etwas Geduld! ❄️'}modal.className='show'}function render(){doors.innerHTML='';pos.forEach(function(p,i){var n=i+1,b=document.createElement('button');b.className='door'+(stored(n)?' opened':'');b.textContent=n;b.setAttribute('aria-label','Türchen '+n);b.style.left='calc('+p[0]+'% - 2.75%)';b.style.top='calc('+p[1]+'% - 2.75%)';b.onclick=function(){show(n)};doors.appendChild(b)})}document.getElementById('close').onclick=function(){modal.className=''};modal.onclick=function(e){if(e.target===modal)modal.className=''};document.getElementById('preview').onclick=function(){preview=!preview;this.textContent='Vorschau: '+(preview?'An':'Aus');this.className=preview?'active':'';this.setAttribute('aria-pressed',String(preview));render()};function clock(){var d=new Date();document.getElementById('clock').textContent=d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long'})+' · '+d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}clock();setInterval(clock,30000);render();var snow=document.getElementById('snow');for(var i=0;i<40;i++){var f=document.createElement('span');f.className='flake';f.textContent='•';f.style.left=Math.random()*100+'%';f.style.fontSize=(5+Math.random()*9)+'px';f.style.animationDuration=(13+Math.random()*19)+'s';f.style.animationDelay=(-Math.random()*30)+'s';snow.appendChild(f)}})();
-</script></body></html>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0b1928">
+  <title>Unser Weihnachtsdorf</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --night: #0b1928;
+      --ivory: #fff4dc;
+      --gold: #ebc78a;
+      --sans: system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at 50% 40%, #20394f, var(--night) 72%);
+      color: var(--ivory);
+      font-family: Georgia, serif;
+    }
+
+    main {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      gap: clamp(12px, 2vh, 24px);
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+               max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    }
+
+    header { text-align: center; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(29px, 5vw, 62px);
+      font-weight: 400;
+      line-height: 1.06;
+      letter-spacing: -.035em;
+      text-wrap: balance;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: var(--gold);
+      font: 600 .72rem/1.35 var(--sans);
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+
+    .scene {
+      position: relative;
+      isolation: isolate;
+      width: min(100%, 1200px);
+      aspect-ratio: 4 / 3;
+      border: 1px solid #e9bf785c;
+      border-radius: clamp(12px, 2vw, 24px);
+      background: #132c45 url('winterdorf.jpg') center / 100% 100% no-repeat;
+      box-shadow: 0 16px 48px #0007, 0 0 0 4px #ffffff09;
+      container-type: inline-size;
+    }
+
+    main { grid-template-columns: minmax(0, 1200px); }
+
+    @media (orientation: landscape) {
+      .scene { width: min(100%, max(640px, calc((100dvh - 190px) * 4 / 3))); }
+    }
+
+    .atmosphere, #snow {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .atmosphere {
+      background: radial-gradient(ellipse at 51% 51%, transparent 42%, #03112063 100%);
+    }
+
+    .light {
+      position: absolute;
+      width: 17%;
+      aspect-ratio: 1;
+      translate: -50% -50%;
+      background: radial-gradient(circle, #ffd28e77, #eb9f3324 33%, transparent 69%);
+      mix-blend-mode: screen;
+      animation: glow 5s ease-in-out infinite alternate;
+    }
+
+    .light:nth-child(1) { left: 50.5%; top: 30%; }
+    .light:nth-child(2) { left: 6%; top: 33%; animation-delay: -2s; }
+    .light:nth-child(3) { left: 79%; top: 81%; animation-delay: -4s; }
+    .light:nth-child(4) { left: 95%; top: 44%; animation-delay: -1s; }
+
+    @keyframes glow { from { opacity: .46; } to { opacity: .9; } }
+
+    .flake {
+      position: absolute;
+      top: -4%;
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      background: #f6fbff;
+      opacity: var(--opacity);
+      filter: blur(var(--blur));
+      animation: fall var(--duration) linear var(--delay) infinite;
+    }
+
+    @keyframes fall { to { transform: translate3d(var(--drift), 80cqw, 0); } }
+
+    #doors { position: absolute; inset: 0; }
+
+    .door {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      translate: -50% -50%;
+      display: grid;
+      place-items: center;
+      width: max(44px, 6.5cqw);
+      height: max(44px, 7cqw);
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--ivory);
+      font: 600 clamp(15px, 2.4cqw, 29px)/1 Georgia, serif;
+      cursor: pointer;
+      perspective: 180px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .door-face {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 84%;
+      height: 87%;
+      border: 1px solid #c99b62;
+      border-radius: 43% 43% 15% 15% / 28% 28% 9% 9%;
+      background:
+        repeating-linear-gradient(95deg, #ffdaa710 0 1px, transparent 2px 6px, #12070033 7px 8px),
+        linear-gradient(145deg, #74452f, #342222 75%);
+      box-shadow: 0 0 0 2px #291b18, 1px 4px 8px #020608bd, inset 0 0 0 2px #3c2722;
+      text-shadow: 0 1px 3px #000;
+      transform-origin: left center;
+      transition: transform .22s ease, filter .22s ease;
+    }
+
+    .door-face::after {
+      content: "";
+      position: absolute;
+      right: 8%;
+      top: 56%;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #f7cf86;
+      box-shadow: 0 1px 2px #120700;
+    }
+
+    .door.available .door-face {
+      border-color: #f2cd89;
+      box-shadow: 0 0 0 2px #482b1c, 0 0 13px #ffb6538c, inset 0 0 7px #e6a35961;
+    }
+
+    .door.opened .door-face {
+      color: #fff7dc;
+      background:
+        repeating-linear-gradient(95deg, #ffdaa71a 0 1px, transparent 2px 6px, #12070033 7px 8px),
+        linear-gradient(145deg, #9c6434, #56311d);
+    }
+
+    .door:active .door-face { transform: rotateY(-24deg); }
+
+    @media (hover: hover) {
+      .door:hover .door-face { filter: brightness(1.2); }
+    }
+
+    button:focus-visible { outline: 2px solid #fff1a8; outline-offset: 3px; }
+
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(14px, 3vw, 32px);
+      color: #e9ddca;
+      font: .78rem/1.3 var(--sans);
+    }
+
+    #preview, #close {
+      min-height: 44px;
+      border: 1px solid #d6ad6e80;
+      border-radius: 999px;
+      padding: 8px 16px;
+      background: #142537;
+      color: var(--ivory);
+      font: 600 .82rem var(--sans);
+      cursor: pointer;
+    }
+
+    #preview[aria-pressed="true"] { background: #694427; }
+
+    dialog {
+      width: min(450px, calc(100% - 32px));
+      max-height: calc(100% - 32px);
+      padding: clamp(22px, 6vw, 42px);
+      border: 4px double #bb9057;
+      border-radius: 16px;
+      background: radial-gradient(ellipse at top, #fff6df, #edd7b1);
+      color: #38271d;
+      box-shadow: 0 20px 70px #000a;
+      text-align: center;
+    }
+
+    dialog[open] { animation: reveal .25s ease-out; }
+    dialog::backdrop { background: #030c17b8; }
+    dialog h2 { margin: 0; font-size: clamp(28px, 5vw, 40px); font-weight: 400; }
+    dialog p { font-size: 1.15rem; line-height: 1.55; }
+    #close { background: #513221; }
+    #close:focus-visible { outline-color: #513221; }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(12px) scale(.97); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 663px) {
+      .scene { width: 100%; aspect-ratio: auto; padding-top: 75%; }
+      .atmosphere, #snow { bottom: auto; aspect-ratio: 4 / 3; border-radius: 11px 11px 0 0; }
+      .scene { background-size: 100% auto; background-position: top; }
+      #doors {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        justify-items: center;
+        gap: 4px 0;
+        padding: 10px 4px;
+        background: #102236;
+        border-radius: 0 0 11px 11px;
+      }
+      .door { position: relative; inset: auto; translate: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      #snow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Unser Weihnachtsdorf</h1>
+      <p>1.–24. Dezember 2026</p>
+    </header>
+
+    <section class="scene" aria-label="Adventskalender mit 24 Türchen">
+      <div class="atmosphere" aria-hidden="true">
+        <i class="light"></i><i class="light"></i><i class="light"></i><i class="light"></i>
+      </div>
+      <div id="snow" aria-hidden="true"></div>
+      <div id="doors"></div>
+    </section>
+
+    <footer>
+      <span id="progress"></span>
+      <button id="preview" type="button" aria-pressed="false">Vorschau: Aus</button>
+      <time id="clock"></time>
+    </footer>
+  </main>
+
+  <dialog id="modal" aria-labelledby="mt" aria-describedby="msg">
+    <h2 id="mt"></h2>
+    <p id="msg"></p>
+    <form method="dialog"><button id="close" autofocus>Schließen</button></form>
+  </dialog>
+
+  <script>
+    'use strict';
+
+    const surprises = [
+      "Heute beginnt unser Weihnachtszauber! Gib jemandem eine riesige Umarmung. ❤️",
+      "Finde heute drei Dinge, die dich glücklich machen. 🌟",
+      "Sing dein Lieblingsweihnachtslied! 🎵",
+      "Bastle einen kleinen Stern aus Papier. ⭐",
+      "Sag jemandem, warum du ihn lieb hast. 💌",
+      "Nikolaus! Schau nach, ob eine kleine Überraschung auf dich wartet. 🎅",
+      "Trinke heute einen leckeren Kakao. ☕",
+      "Baue einen Schneemann aus Schnee, Watte oder Papier. ⛄",
+      "Was wünschst du dir für andere? 💫",
+      "Suche das schönste Weihnachtslicht in eurer Umgebung. 🕯️",
+      "Male ein Rentier mit einer roten Nase. 🦌",
+      "Macht ein lustiges Familienfoto. 📷",
+      "Lest gemeinsam eine Weihnachtsgeschichte. 📖",
+      "Verstecke einen lieben Zettel für jemanden. 💕",
+      "Tanze zu einem Weihnachtslied. 💃",
+      "Welche fünf Dinge glitzern heute? ✨",
+      "Verziert gemeinsam ein Plätzchen. 🍪",
+      "Kuschelt euch zusammen und schaut einen Weihnachtsfilm. 🎬",
+      "Bastle ein winziges Geschenk aus Papier. 🎁",
+      "Erfinde einen Namen für ein Weihnachtsrentier. 🦌",
+      "Geheime Mission: Bring jemanden zum Lachen! 😄",
+      "Bewundert zusammen die Weihnachtsdekoration. 🎄",
+      "Bereite dem Weihnachtsmann einen lieben Gruß vor. 💌",
+      "Frohe Weihnachten! Das größte Geschenk ist die Zeit miteinander. ❤️"
+    ];
+
+    const positions = [
+      [7, 32], [23, 39], [34, 31], [41, 49], [60, 39], [76, 39], [93, 32],
+      [7, 53], [22, 55], [34, 56], [48, 47], [62, 53], [77, 55], [94, 55],
+      [8, 72], [23, 77], [35, 72], [48, 66], [62, 72], [75, 70], [92, 73],
+      [81, 86], [34, 87], [59, 87]
+    ];
+    const doors = document.getElementById('doors');
+    const modal = document.getElementById('modal');
+    const previewButton = document.getElementById('preview');
+    const progress = document.getElementById('progress');
+    const clock = document.getElementById('clock');
+    const snow = document.getElementById('snow');
+    const opened = new Set();
+    let preview = false;
+
+    function storageKey(day) {
+      return 'weihnachtsdorf2026-' + day;
+    }
+
+    function available(day, date) {
+      return preview || date >= new Date(2026, 11, day);
+    }
+
+    function showDoor(day) {
+      const unlocked = available(day, new Date());
+      document.getElementById('mt').textContent = 'Türchen ' + day;
+      document.getElementById('msg').textContent = unlocked
+        ? surprises[day - 1]
+        : 'Dieses Türchen öffnet sich am ' + day + '. Dezember.';
+      if (unlocked) {
+        opened.add(day);
+        try { localStorage.setItem(storageKey(day), '1'); } catch {}
+        refresh();
+      }
+      modal.showModal();
+    }
+
+    const buttons = positions.map(([x, y], index) => {
+      const day = index + 1;
+      try {
+        if (localStorage.getItem(storageKey(day)) === '1') opened.add(day);
+      } catch {}
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'door';
+      button.style.setProperty('--x', x + '%');
+      button.style.setProperty('--y', y + '%');
+      button.setAttribute('aria-haspopup', 'dialog');
+      const face = document.createElement('span');
+      face.className = 'door-face';
+      face.textContent = day;
+      button.append(face);
+      button.addEventListener('click', () => showDoor(day));
+      doors.append(button);
+      return button;
+    });
+
+    function refresh() {
+      const now = new Date();
+      buttons.forEach((button, index) => {
+        const day = index + 1;
+        const isOpened = opened.has(day);
+        const isAvailable = available(day, now);
+        button.classList.toggle('available', isAvailable);
+        button.classList.toggle('opened', isOpened);
+        const state = isOpened ? 'geöffnet' : isAvailable ? 'verfügbar' : 'verschlossen';
+        button.setAttribute('aria-label', 'Türchen ' + day + ', ' + state);
+      });
+      progress.textContent = opened.size + ' von 24 geöffnet';
+      clock.dateTime = now.toISOString();
+      clock.textContent = now.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })
+        + ' · ' + now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    previewButton.addEventListener('click', () => {
+      preview = !preview;
+      previewButton.textContent = 'Vorschau: ' + (preview ? 'An' : 'Aus');
+      previewButton.setAttribute('aria-pressed', String(preview));
+      refresh();
+    });
+
+    modal.addEventListener('click', event => {
+      if (event.target !== modal) return;
+      const rect = modal.getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right ||
+          event.clientY < rect.top || event.clientY > rect.bottom) modal.close();
+    });
+
+    for (let index = 0; index < 58; index++) {
+      const near = index < 13;
+      const flake = document.createElement('span');
+      flake.className = 'flake';
+      flake.style.left = Math.random() * 100 + '%';
+      flake.style.setProperty('--size', (near ? 3 + Math.random() * 3 : 1 + Math.random() * 2) + 'px');
+      flake.style.setProperty('--opacity', .24 + Math.random() * .46);
+      flake.style.setProperty('--blur', near ? '1px' : '.25px');
+      flake.style.setProperty('--drift', (4 + Math.random() * 10) + 'cqw');
+      flake.style.setProperty('--duration', (near ? 10 + Math.random() * 8 : 19 + Math.random() * 13) + 's');
+      flake.style.setProperty('--delay', -Math.random() * 32 + 's');
+      snow.append(flake);
+    }
+
+    refresh();
+    setInterval(refresh, 30000);
+  </script>
+</body>
+</html>
